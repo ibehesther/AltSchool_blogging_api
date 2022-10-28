@@ -1,5 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+const authRouter = require("./routes/auth");
 
 
 const PORT = process.env.PORT || 8080;
@@ -17,11 +19,16 @@ mongoose.connection.on("error", (err) => {
 	console.log(err);
 });
 
+app.use(cors({origin: '*'}))
+app.use(express.json())
 
+// Connect express application to express routers
+app.use("/", authRouter);
 
 app.get("/", (req, res) => {
     res.send("Welcome to AltSchool Blogging API!")
 })
+
 
 
 

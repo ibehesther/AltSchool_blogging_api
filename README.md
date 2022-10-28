@@ -21,7 +21,7 @@ Requirements
 - The owner of the blog should be able to get a list of their blogs. 
 - The endpoint should be paginated
 - It should be filterable by state
-- Blogs created should have title, description, tags, author, timestamp, state, read_count, reading_time and body.
+- Blogs created should have title, description, tags, author, timestamp, state, read_count, reading_time and body.,8jkk
 - The list of blogs endpoint that can be accessed by both logged in and not logged in users should be paginated, 
 default it to 20 blogs per page. 
 - It should also be searchable by author, title and tags.
