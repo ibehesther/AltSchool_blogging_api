@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const authRouter = require("./routes/auth");
+const { errorHandler } = require("./middlewares/error");
 
 
 const PORT = process.env.PORT || 8080;
@@ -25,6 +26,9 @@ app.use(express.json())
 // Connect express application to express routers
 app.use("/", authRouter);
 
+
+// Middleware for error handling
+app.use(errorHandler);
 app.get("/", (req, res) => {
     res.send("Welcome to AltSchool Blogging API!")
 })

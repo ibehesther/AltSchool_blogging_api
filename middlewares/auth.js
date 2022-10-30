@@ -37,15 +37,15 @@ passport.use(
     'signup',
     new LocalStrategy(
         {
-            usernameField: "username",
+            usernameField: "email",
             passwordField: "password",
             passReqToCallback: true
         },
-        async (req,username, password, done) =>{
+        async (req,email, password, done) =>{
             try{
-                let { username, password, user_type } = req.body;
-                const user = await userModel.create({username, password, user_type});
-                const token = jwt.sign({username, user_type}, JWT_SECRET)
+                let { email, password, first_name, last_name,  } = req.body;
+                const user = await userModel.create({email, password, first_name, last_name});
+                const token = jwt.sign({ email, _id: user._id }, JWT_SECRET);
                 return done(null, { user, token })
             }catch(error){
                 let err = new Error()
@@ -61,13 +61,13 @@ passport.use(
     'login',
     new LocalStrategy(
         {
-            usernameField: "username",
+            usernameField: "email",
             passwordField: "password",
             passReqToCallback: true
         },
-        async (req,username, password, done) =>{
+        async (req,email, password, done) =>{
             try{
-                const user = await userModel.findOne({username});
+                const user = await userModel.findOne({email});
                 if(!user){
                     let err = new Error()
                     err.type = "not found"
@@ -79,7 +79,7 @@ passport.use(
                     err.type = "unauthenticated"
                     return done(err);
                 }
-                const token = jwt.sign({username, _id: user._id}, JWT_SECRET);
+                const token = jwt.sign({email, _id: user._id}, JWT_SECRET);
                 return done(null, {user, token})
             }catch(error){
                 done(error)
