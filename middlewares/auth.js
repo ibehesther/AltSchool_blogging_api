@@ -1,89 +1,73 @@
-const passport = require("passport");
 const jwt = require("jsonwebtoken");
-const LocalStrategy = require('passport-local').Strategy;
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
-const userModel = require('../models/user');
+const User = require('../models/user');
 require("dotenv").config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
-var opts = {}
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = JWT_SECRET;
-
-// middleware to check and validate bearer token in the authorization header
-passport.use(
-    new JwtStrategy(
-        opts, 
-        function(token, done) {
-            userModel.findOne({username: token.username}, function(err, user) {
-                if (err) {
-                    return done(err, false);
-                }
-                if (user) {
-                    return done(null, user);
-                } else {
-                    return done(null, false);
-                    // or you could create a new account
-                }
-            });
-        }
-    )
-);
-
-// Middleware for signup
-passport.use(
-    'signup',
-    new LocalStrategy(
-        {
-            usernameField: "email",
-            passwordField: "password",
-            passReqToCallback: true
-        },
-        async (req,email, password, done) =>{
-            try{
-                let { email, password, first_name, last_name,  } = req.body;
-                const user = await userModel.create({email, password, first_name, last_name});
-                const token = jwt.sign({ email, _id: user._id }, JWT_SECRET);
-                return done(null, { user, token })
-            }catch(error){
-                let err = new Error()
-                err.type = "internal server error"
-                return done(err);
+const get_token_from_header =(header, next) => {
+    if("authorization" in header){
+        const header_parts = header['authorization'].split(' ');
+        if(header_parts.length === 2){
+            if(header_parts[0] === "Bearer"){
+                return header_parts[1]
+            }else{
+                let err = new Error();
+                err.type = "bad request";
+                next(err);
             }
+        }else{
+            let err = new Error();
+            err.type = "bad request";
+            next(err);
         }
-    )
-);
+    }else{
+        let err = new Error();
+        err.type = "unauthenticated";
+        next(err);
+    }
+}
 
-// Middleware for signup
-passport.use(
-    'login',
-    new LocalStrategy(
-        {
-            usernameField: "email",
-            passwordField: "password",
-            passReqToCallback: true
-        },
-        async (req,email, password, done) =>{
-            try{
-                const user = await userModel.findOne({email});
-                if(!user){
-                    let err = new Error()
-                    err.type = "not found"
-                    return done(err);
+const verify_jwt = (token, next) => {
+    const token_duration_milliseconds = 3600000; //token valid for one hour
+    const jwt_secret = process.env.JWT_SECRET_KEY;
+    const verified = jwt.verify(token, jwt_secret);
+    const current_time = Date.now();
+    const expiry_date = new Date(verified.date).getTime() + token_duration_milliseconds;
+    if(expiry_date >= current_time){
+        return verified;
+    }else{
+        let err = new Error();
+        err.type = "unauthorized";
+        next(err);
+    }
+}
+
+const jwt_auth = async(req, res, next) => {
+    const header = req.headers;
+    const token = get_token_from_header(header, next);
+    try{
+        if(token){
+            const data = verify_jwt(token, next);
+            if(data) {
+                const { email, _id } = data;
+                const user = await User.findOne({ email, _id });
+                if(user){
+                    req.user = user;
+                    req.token = token;
+                    next()
+                }else{
+                    let error = new Error();
+                    error.type = "not found";
+                    next(error);
                 }
-                const validPassword = await user.validPassword(password);
-                if(!validPassword){
-                    let err = new Error()
-                    err.type = "unauthenticated"
-                    return done(err);
-                }
-                const token = jwt.sign({email, _id: user._id}, JWT_SECRET);
-                return done(null, {user, token})
-            }catch(error){
-                done(error)
             }
+        }else{
+            throw new Error();
         }
-    )
-);
+    }catch(error) {
+        error.type = "unauthorized";
+        next(error);
+    }
+}
+
+module.exports = jwt_auth;

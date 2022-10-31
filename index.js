@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const authRouter = require("./routes/auth");
 const { errorHandler } = require("./middlewares/error");
+const jwt_auth = require("./middlewares/auth");
+const userRouter = require("./routes/users");
 
 
 const PORT = process.env.PORT || 8080;
@@ -25,6 +27,7 @@ app.use(express.json())
 
 // Connect express application to express routers
 app.use("/", authRouter);
+app.use("/users", jwt_auth, userRouter)
 
 
 // Middleware for error handling

@@ -16,7 +16,7 @@ const blogSchema = new Schema({
     },
     state: {
         type: String,
-        required: true
+        default: "draft"
     },
     read_count: {
         type: Number,
