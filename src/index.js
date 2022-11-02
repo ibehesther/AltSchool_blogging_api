@@ -5,6 +5,7 @@ const authRouter = require("./routes/auth");
 const { errorHandler } = require("./middlewares/error");
 const jwt_auth = require("./middlewares/auth");
 const userRouter = require("./routes/users");
+const blogRouter = require("./routes/blog");
 
 
 const PORT = process.env.PORT || 8080;
@@ -27,7 +28,8 @@ app.use(express.json())
 
 // Connect express application to express routers
 app.use("/", authRouter);
-app.use("/users", jwt_auth, userRouter)
+app.use("/users", jwt_auth, userRouter);
+app.use("/blog", blogRouter);
 
 
 // Middleware for error handling

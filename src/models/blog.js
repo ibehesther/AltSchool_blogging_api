@@ -23,11 +23,11 @@ const blogSchema = new Schema({
         required: true
     },
     reading_time: {
-        type: String,
+        type: Number,
         required: true
     },
     tags: {
-        type: String,
+        type: [String],
         required: true
     },
     body: {

@@ -10,7 +10,6 @@ userRouter.patch('/', async(req, res, next) => {
     if(first_name || last_name){
         const user = await User.findByIdAndUpdate({_id}, 
            {$set: req.body});
-        console.log(user)
         res.json({
             "success": true,
             "message": "User updated successfully"
@@ -26,7 +25,6 @@ userRouter.patch('/', async(req, res, next) => {
 userRouter.delete('/', async(req, res, next) => {
     const _id = req.user._id;
     const user = await User.findByIdAndDelete(_id);
-    console.log(user)
     res.json({
         "success": true,
         "message": "User deleted successfully"
