@@ -29,7 +29,7 @@ app.use(express.json())
 // Connect express application to express routers
 app.use("/", authRouter);
 app.use("/users", jwt_auth, userRouter);
-app.use("/blog", blogRouter);
+app.use("/blogs", blogRouter);
 
 
 // Middleware for error handling
