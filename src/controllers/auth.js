@@ -36,7 +36,7 @@ exports.signin = async(req, res, next) => {
             const hashedUser = await User.findOne({email});
             if(!hashedUser){
                 let err = new Error();
-                err.type = "not found";
+                err.type = "internal server error";
                 next(err);
                 return;
             }
