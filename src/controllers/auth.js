@@ -41,7 +41,6 @@ exports.signin = async(req, res, next) => {
                 return;
             }
             // Compare users password to password in db
-            console.log(hashedUser.password )
             password = await bcrypt.compare(password, hashedUser.password)
             if(!password) {
                 let err = new Error();
