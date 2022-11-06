@@ -10,7 +10,6 @@ const getOccurence = (array, object) => {
 }
 
 const getOrder = (order) => {
-    console.log(order)
     order = order.toLowerCase();
     if (order == "desc"){
         return -1
@@ -64,8 +63,7 @@ exports.getAllBlogPosts = async(req, res, next) => {
                 filtered_result = filter_fields.map(async(filter_field) => {
                     let ordered_result = order_fields.map(async(order_field) => {
                         // let all_matching_results = [];
-                        let order = getOrder(other_fields[order_field])
-                        console.log(order)
+                        let order = getOrder(other_fields[order_field]);
                         let posts = await Blog.find({[filter_field]: {$regex: other_fields[filter_field], $options: 'i'}})
                         .sort({[order_field]: order })
                         .populate("author", "first_name last_name")
@@ -138,8 +136,7 @@ exports.getAllBlogPosts = async(req, res, next) => {
             }
             if(!filter_fields.length && order_fields.length){
                 let ordered_result = order_fields.map(async(order_field) => {
-                    let order = getOrder(other_fields[order_field])
-                    console.log(order)
+                    let order = getOrder(other_fields[order_field]);
                     let posts = await Blog.find({})
                     .sort({[order_field]: order })
                     .populate("author", "first_name last_name")
@@ -236,9 +233,10 @@ exports.getBlogPostById = async(req, res, next) => {
 exports.createBlog = async(req, res, next) => {
     let user = req.user;
     let { _id } = user;
-    let { title, description, tags, body } = req.body;
-    let words = body.split(' ')
+    let { title, description, tags=[], body } = req.body;
+    
     try {
+        let words = body.split(' ')
         let author = await User.findById(user._id);
 
         // Create reading time algorithm
@@ -258,21 +256,18 @@ exports.createBlog = async(req, res, next) => {
 
 exports.updateBlog = async(req, res, next) => {
     let user = req.user;
-    let { first_name, last_name } = user;
-    const user_name = `${first_name} ${last_name}`;
+    const user_id = user._id
     const _id = req.params.id;
     const { state, description, read_count, reading_time, tags, body } = req.body
     try {
-        const post = await Blog.findById(_id);
-        console.log(post)
-        // .populate('author');
+        const post = await Blog.findById(_id)
+        .populate('author');
         if(!post){
             let error = new Error();
             error.type = "not found";
             next(error);
             return;
         }
-        console.log(post.author, user_name)
         const isBlogAuthorTheUser = post.author._id.equals(user_id);
         // only the author should be able edit the blog post
         if(isBlogAuthorTheUser){
