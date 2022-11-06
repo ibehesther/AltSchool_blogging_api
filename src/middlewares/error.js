@@ -27,7 +27,7 @@ const errorHandler = (error, req, res, next) => {
             statusCode: 404,
             message: "Resource not found"
           })
-          break;  
+          break;
         case "internal server error":
           res.status(500).json({
             error: "Internal Server Error",
