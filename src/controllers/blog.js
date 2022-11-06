@@ -72,10 +72,11 @@ exports.getAllBlogPosts = async(req, res, next) => {
 
                         // filter by author if available
                         if(author){
+                            author = author.toLowerCase();
                             all_matching_results = all_matching_results.filter((result) => {
                                 let { first_name, last_name } = result.author;
                                 let author_name = `${first_name} ${last_name}`;
-                                return author_name.includes(author)
+                                return author_name.toLowerCase().includes(author)
     
                             })
                         }
@@ -109,10 +110,11 @@ exports.getAllBlogPosts = async(req, res, next) => {
 
                     // filter by author if available
                     if(author){
+                        author = author.toLowerCase();
                         all_matching_results = all_matching_results.filter((result) => {
                             let { first_name, last_name } = result.author;
                             let author_name = `${first_name} ${last_name}`;
-                            return author_name.includes(author)
+                            return author_name.toLowerCase().includes(author)
 
                         })
                     }
@@ -134,7 +136,7 @@ exports.getAllBlogPosts = async(req, res, next) => {
                 let posts = await filtered_result[0];
                 res.json(posts.slice(startPage, endPage));
             }
-            if(!filter_fields.length && order_fields.length){
+            else if(!filter_fields.length && order_fields.length){
                 let ordered_result = order_fields.map(async(order_field) => {
                     let order = getOrder(other_fields[order_field]);
                     let posts = await Blog.find({})
@@ -142,6 +144,17 @@ exports.getAllBlogPosts = async(req, res, next) => {
                     .populate("author", "first_name last_name")
                     .all()
                     all_matching_results.push(...posts);
+
+                    // filter by author if available
+                    if(author){
+                        author = author.toLowerCase();
+                        all_matching_results = all_matching_results.filter((result) => {
+                            let { first_name, last_name } = result.author;
+                            let author_name = `${first_name} ${last_name}`;
+                            return author_name.toLowerCase().includes(author)
+
+                        })
+                    }
 
                     let duplicate_result = all_matching_results.filter((field) => {
                         // get the number of times a result appears 
@@ -158,6 +171,24 @@ exports.getAllBlogPosts = async(req, res, next) => {
                     return result
                 })
                 let posts = await ordered_result[0];
+                res.json(posts.slice(startPage, endPage));
+            }
+            else{
+                let posts = await Blog.find({})
+                .populate("author", "first_name last_name")
+                .all()
+
+                // filter by author if available
+                if(author){
+                    // case insensitive search
+                    author = author.toLowerCase();
+                    posts = posts.filter((result) => {
+                        let { first_name, last_name } = result.author;
+                        let author_name = `${first_name} ${last_name}`;
+                        return author_name.toLowerCase().includes(author)
+
+                    })
+                }
                 res.json(posts.slice(startPage, endPage));
             }
         }
