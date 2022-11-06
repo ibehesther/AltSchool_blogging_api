@@ -22,11 +22,12 @@ const errorHandler = (error, req, res, next) => {
           })
           break;
         case "not found":
-          res.status(404).json({
-            error: "Not Found",
-            statusCode: 404,
-            message: "Resource not found"
-          })
+          // res.status(404).json({
+          //   error: "Not Found",
+          //   statusCode: 404,
+          //   message: "Resource not found"
+          // })
+          res.status(404).send("not found")
           break;  
         case "internal server error":
           res.status(500).json({
