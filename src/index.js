@@ -6,13 +6,15 @@ const { errorHandler } = require("./middlewares/error");
 const jwt_auth = require("./middlewares/auth");
 const userRouter = require("./routes/users");
 const blogRouter = require("./routes/blog");
+require("dotenv").config()
 
 
 const PORT = process.env.PORT || 8080;
 const app = express();
+const { DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME } = process.env;
+ 
 
-
-mongoose.connect('mongodb://localhost:27017/AltSchool_Blog')
+mongoose.connect(`mongodb+srv://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@bareskn-api.o25gix8.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`)
 
 mongoose.connection.on("connected", () => {
 	console.log("Connected to MongoDB Successfully");

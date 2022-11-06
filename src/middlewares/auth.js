@@ -61,8 +61,6 @@ const jwt_auth = async(req, res, next) => {
                     next(error);
                 }
             }
-        }else{
-            throw new Error();
         }
     }catch(error) {
         error.type = "unauthorized";
