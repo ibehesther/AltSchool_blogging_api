@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const {limiter} = require("./config/config")
 const authRouter = require("./routes/auth");
 const { errorHandler } = require("./middlewares/error");
 const jwt_auth = require("./middlewares/auth");
@@ -27,6 +28,7 @@ mongoose.connection.on("error", (err) => {
 
 app.use(cors({origin: '*'}))
 app.use(express.json())
+app.use(limiter)
 
 // Connect express application to express routers
 app.use("/", authRouter);
