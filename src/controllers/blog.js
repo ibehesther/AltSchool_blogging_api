@@ -19,10 +19,17 @@ const getOrder = (order) => {
     }
 }
 
+
+// exports.getAllBlogPosts = async(req, res, next) => {
+
+// }
+
+
 // Get all blog post
 // Result filterable by state
 // Paginate result
 exports.getAllBlogPosts = async(req, res, next) => {
+    
     let { limit=20, page=1, ...other_fields} = req.query;
     let { state, author, title } = other_fields;
     const fields_keys = Object.keys(other_fields);

@@ -20,7 +20,6 @@ exports.updateUser = async(req, res, next) => {
 exports.deleteUser = async(req, res, next) => {
     const _id = req.user._id;
     const user = await User.findByIdAndDelete(_id);
-    console.log(user)
     if(!user){
         let error = new Error();
         error.type = "not found"

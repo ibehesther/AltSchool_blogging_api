@@ -1,12 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const {limiter} = require("./config/config")
+const { limiter } = require("./config/config")
 const authRouter = require("./routes/auth");
 const { errorHandler } = require("./middlewares/error");
 const jwt_auth = require("./middlewares/auth");
 const userRouter = require("./routes/users");
 const blogRouter = require("./routes/blog");
+const { logger } = require("./services/log")
 require("dotenv").config()
 
 
@@ -18,12 +19,12 @@ const { DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME } = process.env;
 mongoose.connect(`mongodb+srv://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@bareskn-api.o25gix8.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`)
 
 mongoose.connection.on("connected", () => {
-	console.log("Connected to MongoDB Successfully");
+	logger.info("Connected to MongoDB Successfully");
 });
 
 mongoose.connection.on("error", (err) => {
-	console.log("An error occurred while connecting to MongoDB");
-	console.log(err);
+	logger.error("An error occurred while connecting to MongoDB");
+	logger.error(err);
 });
 
 app.use(cors({origin: '*'}))
@@ -47,5 +48,5 @@ app.get("/", (req, res) => {
 
 
 app.listen(PORT , () => {
-    console.log(`Server is running on port ${PORT}`)
+    logger.info(`Server is running on port ${PORT}`)
 })

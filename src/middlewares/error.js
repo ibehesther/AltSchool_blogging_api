@@ -36,7 +36,7 @@ const errorHandler = (error, req, res, next) => {
           })
           break;
         default:
-          console.log("Error not handled");
+          logger.error("Error not handled");
     }
     next();
 }
