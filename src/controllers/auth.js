@@ -2,26 +2,28 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const User = require("../models/user")
+const User = require("../models/user");
+const {JWT_SECRET_KEY} = process.env
 
-const generateJWT =(data) => {
-    data.date = Date.now();
-    const jwt_secret = process.env.JWT_SECRET_KEY;
-    const token = jwt.sign(data, jwt_secret);
+const generateJWT =({_id, email}) => {
+    const payload = {
+        _id,
+        email
+    }
+    const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: '1h' });
     return token;
 }
 
-exports.signup = async(req, res, next) => {
-    let { first_name, last_name, email, password } = req.body;
-    
+exports.signup = async(data, req, res, next) => {
     try{
-        if(first_name && last_name && email && password){
-            const user = await User.create({ first_name, last_name, email, password });
+        if(!data.type){
+            const user = await User.create({...data});
             // Generate token
-            const token = generateJWT({email, _id: user._id});
+            const token = generateJWT({email: user.email, _id: user._id});
             res.status(201).json({user, token});
+            return
         }else{
-            throw new Error();
+            next(data);
         }
     }catch (err) {
         err.type = "bad request";

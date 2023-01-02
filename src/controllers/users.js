@@ -1,33 +1,42 @@
 const User = require("../models/user");
 
-exports.updateUser = async(req, res, next) => {
-    const _id = req.user._id;
-    const { first_name, last_name } = req.body;
-    if(first_name || last_name){
-        const user = await User.findByIdAndUpdate({_id}, 
-           {$set: req.body});
-        res.json({
-            "success": true,
-            "message": "User updated successfully"
-        })
-    }else{
-        let error = new Error();
-        error.type = "bad request"
-        next(error);
+exports.updateUser = async(data, req, res, next) => {
+    const { user, validInput, type } = data;
+    try{
+        // Data contains a type field only when returning an error
+        if(!type){
+            let filtered_input = {}
+            let filtered_fields = Object.keys(validInput).filter((field) => validInput[field] !== undefined)
+            filtered_fields.forEach((field) => filtered_input[field] = validInput[field]);
+            
+            const updatedUser = await User.findByIdAndUpdate({_id: user._id}, {$set: filtered_input});
+            if(updatedUser){
+                res.json({message: "User updated successfully"})
+                return;
+            }
+        }
+        else{
+            next(data);
+        }
+    }catch(err){
+        next(err);
     }
 }
 
-exports.deleteUser = async(req, res, next) => {
-    const _id = req.user._id;
-    const user = await User.findByIdAndDelete(_id);
-    if(!user){
-        let error = new Error();
-        error.type = "not found"
-        next(error);
-        return;
+exports.deleteUser = async(data, req, res, next) => {
+    try{
+        // Data contains a type field only when returning an error
+        if(!data.type){
+            const deletedUser = await User.findByIdAndDelete(data._id);
+            if(deletedUser){
+                res.json({message: "User deleted successfully"})
+                return;
+            }
+        }
+        else{
+            next(data);
+        }
+    }catch(err){
+        next(err);
     }
-    res.json({
-        "success": true,
-        "message": "User deleted successfully"
-    })
 }

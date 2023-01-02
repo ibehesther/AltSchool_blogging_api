@@ -32,15 +32,15 @@ app.use(express.json())
 app.use(limiter)
 
 // Connect express application to express routers
-app.use("/", authRouter);
-app.use("/users", jwt_auth, userRouter);
-app.use("/blogs", blogRouter);
+app.use("/api/v1.0", authRouter);
+app.use("/api/v1.0/users", userRouter);
+app.use("/api/v1.0/blogs", blogRouter);
 
 
 // Middleware for error handling
 app.use(errorHandler);
-app.get("/", (req, res) => {
-    res.send("Welcome to AltSchool Blogging API!")
+app.get("/api/v1.0", (req, res) => {
+    res.send("Welcome to AltSchool Blogging API Version 1.0!")
 })
 
 

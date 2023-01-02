@@ -207,7 +207,6 @@ exports.getAllBlogPosts = async(req, res, next) => {
             res.json(posts);
         }
     }catch(error){
-        error.type = "internal server error";
         next(error);
     }
 }
@@ -215,8 +214,8 @@ exports.getAllBlogPosts = async(req, res, next) => {
 // Get all blog posts of a logged in user
 // Result filterable by state
 // Paginate result
-exports.getUserBlogPosts = async(req, res, next) => {
-    const { _id } = req.user;
+exports.getUserBlogPosts = async( data, req, res, next) => {
+    const { _id, type} = data;
     let { limit=10, page=1, state } = req.query;
     limit = parseInt(limit);
     page = parseInt(page);
@@ -268,36 +267,43 @@ exports.getBlogPostById = async(req, res, next) => {
     }
 }
 
-exports.createBlog = async(req, res, next) => {
-    let user = req.user;
-    let { _id } = user;
-    let { title, description, tags=[], body } = req.body;
-    
+exports.createBlog = async( data, req, res, next) => {
+    const { user, type, validInput } = data;
+
     try {
-        let words = body.split(' ')
-        let author = await User.findById(user._id);
-
-        // Create reading time algorithm
-        // Assuming a person reads 200 words in 60 secs
-        let time_in_secs = (words.length * 60) / 200
-        let reading_time = Math.ceil(time_in_secs);
-
-        let post = await Blog.create({ title, description, author: _id, reading_time, tags, body});
-        author.posts.push(post);
-        author.save();
-        res.status(201).json({post});
+        if(!type) {
+            let words = validInput.body.split(' ')
+            let author = await User.findById(user._id);
+            // Create reading time algorithm
+            // Assuming a person reads 200 words in 60 secs
+            let time_in_secs = (words.length * 60) / 200
+            let reading_time = Math.ceil(time_in_secs);
+    
+            let post = await Blog.create({ ...validInput, author: user._id, reading_time });
+            author.posts.push(post);
+            author.save();
+            res.status(201).json({post});
+            return
+        }else{
+            next(data);
+            return
+        }
     }catch(error){
         error.type = "bad request";
         next(error);
     }
 }
 
-exports.updateBlog = async(req, res, next) => {
-    let user = req.user;
+exports.updateBlog = async(data, req, res, next) => {
+    const { user, validInput, type} = data
     const user_id = user._id
     const _id = req.params.id;
-    const { state, description, read_count, reading_time, tags, body } = req.body
     try {
+        // pass data to error handler middleware if it is an error
+        if(type){
+            next(data);
+            return;
+        }
         const post = await Blog.findById(_id)
         .populate('author');
         if(!post){
@@ -309,17 +315,14 @@ exports.updateBlog = async(req, res, next) => {
         const isBlogAuthorTheUser = post.author._id.equals(user_id);
         // only the author should be able edit the blog post
         if(isBlogAuthorTheUser){
-           if(state || description || read_count || reading_time || tags || body){
-                const updated_post = await Blog.updateOne({_id}, {
-                    $set: req.body
+            const updated_post = await Blog.updateOne({_id}, {
+                $set: validInput
+            });
+            if(updated_post.modifiedCount){
+                res.json({
+                    message: "Blog post has been successfully updated!"
                 });
-                if(updated_post.modifiedCount){
-                    res.json({
-                        success: true,
-                        message: "Blog post has been successfully updated!"
-                    });
-                }
-           }
+            }
         }
         else{
             let error = new Error();
@@ -332,18 +335,22 @@ exports.updateBlog = async(req, res, next) => {
     }
 }
 
-exports.deleteBlog = async(req, res, next) => {
-    let user = req.user;
-    const user_id = user._id;
+exports.deleteBlog = async(data, req, res, next) => {
+    const { type } = data;
+    
     const _id = req.params.id;
     try {
+        if(type){
+            next(data);
+            return;
+        }
+        const user_id = data._id
         const post = await Blog.findById(_id).populate('author');
         // only the author should be able delete the blog post
         const isBlogAuthorTheUser = post.author._id.equals(user_id);
         if(isBlogAuthorTheUser){
             post.delete();
             res.json({
-                success: true,
                 message: "Blog post has been successfuly deleted!"
             })
         }
