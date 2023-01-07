@@ -1,6 +1,6 @@
 const express = require("express");
 const { signup, signin } = require("../controllers/auth");
-const { validateCreateUser } = require("../middlewares/validators/user.validator");
+const { validateCreateUser } = require("../middlewares/validators/user");
 require("dotenv").config();
 
 const authRouter = express.Router();

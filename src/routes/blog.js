@@ -1,7 +1,7 @@
 const express = require("express");
 const jwt_auth = require("../middlewares/auth/auth");
 const { getAllBlogPosts, getUserBlogPosts, getBlogPostById, createBlog, updateBlog, deleteBlog } = require("../controllers/blog");
-const { validateCreateBlog, validateUpdateBlog } = require("../middlewares/validators/blog.validator");
+const { validateCreateBlog, validateUpdateBlog } = require("../middlewares/validators/blog");
 
 const blogRouter = express.Router();
 
