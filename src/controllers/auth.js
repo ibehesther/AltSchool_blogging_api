@@ -1,8 +1,9 @@
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
 const User = require("../models/user");
+require("dotenv").config();
+
 const {JWT_SECRET_KEY} = process.env
 
 const generateJWT =({_id, email}) => {
@@ -52,8 +53,10 @@ exports.signin = async(req, res, next) => {
             }
             // Validate user
             const user = await User.findOne({email, password: hashedUser.password});
+
             // Generate JWT
             const token = generateJWT({email, _id: user._id});
+
             res.send({
                 user,
                 token

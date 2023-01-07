@@ -16,6 +16,7 @@ const blogSchema = Joi.object({
         .trim()
         .required(),
     state: Joi.string()
+        .valid("draft", "published")
         .default("draft"),
     tags: Joi.array()
         .items(Joi.string())
@@ -35,6 +36,7 @@ const updateBlogSchema = Joi.object({
         .min(1)
         .trim(),
     state: Joi.string()
+        .valid("draft", "published")
         .trim(),
     tags: Joi.array()
         .items(Joi.string())

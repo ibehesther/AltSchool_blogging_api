@@ -1,7 +1,7 @@
 const express = require("express");
-const { updateUser, deleteUser } = require("../controllers/users");
-const jwt_auth = require("../middlewares/auth");
-const { validateUpdateUser } = require("../validators/user.validator");
+const { updateUser, deleteUser } = require("../controllers/user");
+const jwt_auth = require("../middlewares/auth/auth");
+const { validateUpdateUser } = require("../middlewares/validators/user.validator");
 
 const userRouter = express.Router();
 

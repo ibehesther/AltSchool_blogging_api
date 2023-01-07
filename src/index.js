@@ -1,13 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { limiter } = require("./config/config")
 const authRouter = require("./routes/auth");
-const { errorHandler } = require("./middlewares/error");
-const jwt_auth = require("./middlewares/auth");
-const userRouter = require("./routes/users");
+const { errorHandler } = require("./middlewares/error/error");
+const userRouter = require("./routes/user");
 const blogRouter = require("./routes/blog");
-const { logger } = require("./services/log")
+const { logger } = require("./services/logger");
+const { limiter } = require("./services/limiter");
 require("dotenv").config()
 
 
