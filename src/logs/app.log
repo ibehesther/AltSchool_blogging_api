@@ -758,3 +758,5 @@
 {"level":"info","message":"Connected to MongoDB Successfully"}
 {"level":"info","message":"Server is running on port 8080"}
 {"level":"error","message":"An error occurred while connecting to MongoDB"}
+{"level":"info","message":"Server is running on port 8080"}
+{"level":"info","message":"Connected to MongoDB Successfully"}

@@ -7,6 +7,7 @@ const userRouter = require("./routes/user");
 const blogRouter = require("./routes/blog");
 const { logger } = require("./services/logger");
 const { limiter } = require("./services/limiter");
+const { httpLogger } = require("./services/httpLogger");
 require("dotenv").config()
 
 
@@ -26,9 +27,10 @@ mongoose.connection.on("error", (err) => {
 	logger.error(err);
 });
 
-app.use(cors({origin: '*'}))
-app.use(express.json())
-app.use(limiter)
+app.use(cors({origin: '*'}));
+app.use(express.json());
+app.use(limiter);
+app.use(httpLogger);
 
 // Connect express application to express routers
 app.use("/api/v1.0", authRouter);
@@ -36,13 +38,22 @@ app.use("/api/v1.0/users", userRouter);
 app.use("/api/v1.0/blogs", blogRouter);
 
 
-// Middleware for error handling
-app.use(errorHandler);
 app.get("/api/v1.0", (req, res) => {
     res.send("Welcome to AltSchool Blogging API Version 1.0!")
 })
 
+app.get("/", (req, res) => {
+	res.redirect("/api/v1.0");
+})
 
+app.get("*", (req, res, next) => {
+	const err = new Error();
+	err.type = "not found";
+	next(err);
+})
+
+// Middleware for error handling
+app.use(errorHandler);
 
 
 

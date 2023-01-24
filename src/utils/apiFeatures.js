@@ -11,8 +11,6 @@ class APIFeatures {
     excludedFields.forEach(el => delete queryObj[el]);
 
 
-    const filterable_fields = ["state", "title", "tags", "author"];
-    const sortable_fields = ["read_count", "reading_time", "createdAt"];
 
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
